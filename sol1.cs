@@ -2,14 +2,14 @@
 
  Sql Server Codes 
 
-Create database TweetApp
+Create database LinkedInApp
 
-use TweetApp
+use LinkedInApp
 
 create table Users(UserId int primary key, FirstName varchar(30),LastName varchar(30),Gender varchar(10),DateOfBirth Date,Email varchar(50),Password varchar(30));
 
-create table Tweets(
-TweetId int primary key,
+create table Posts(
+LinkedInId int primary key,
 UserName varchar(60),
 Message varchar(200),
 CreateId datetime,
@@ -17,12 +17,12 @@ UserId int FOREIGN KEY REFERENCES Users(UserId)
 );
 
 
-TweeterApp.Entities
+LinkedInApp.Entities
 //Users.cs
 
 using System;
 
-namespace TweeterApp.Entities
+namespace LinkedInApp.Entities
 {
     public class Users
     {
@@ -38,16 +38,16 @@ namespace TweeterApp.Entities
 }
 
 
-//Tweets.cs
+//Posts.cs
 
 using System;
 
 
-namespace TweeterApp.Entities
+namespace LinkedInApp.Entities
 {
-    class Tweets
+    class Posts
     {
-        public int TweetId { get; set; }
+        public int LinkedInId { get; set; }
         public int UserId { get; set; }
         public string UserName { get; set; }
         public string Message { get; set; }
@@ -56,12 +56,12 @@ namespace TweeterApp.Entities
     }
 }
 
-TweeterApp.CustomException
+LinkedInApp.CustomException
 DuplicateEmailIdException.cs
 
 using System;
 
-namespace TweeterApp.CustomException
+namespace LinkedInApp.CustomException
 {
     public class DuplicateEmailIdException : Exception
     {
@@ -81,14 +81,14 @@ namespace TweeterApp.CustomException
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using TweeterApp.CustomException;
-using TweeterApp.Entities;
+using LinkedInApp.CustomException;
+using LinkedInApp.Entities;
 
-namespace TweeterApp.DataAccessLayer
+namespace LinkedInApp.DataAccessLayer
 {
     public class UserData
     {
-        static string ConnectionString = "data source=.; database=TweetApp; integrated security=SSPI";
+        static string ConnectionString = "data source=.; database=LinkedInApp; integrated security=SSPI";
         public static int AddUser(Users user)
         {
             try
@@ -223,30 +223,30 @@ public static void updatePassword(string pass, Users user)
 
 
 
-//TweetData.cs
+//LinkedInData.cs
 
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using TweeterApp.Entities;
+using LinkedInApp.Entities;
 
-namespace TweeterApp.DataAccessLayer
+namespace LinkedInApp.DataAccessLayer
 {
-    public class TweetData
+    public class LinkedInData
     {
-        static string ConnectionString = "data source=.; database=TweetApp; integrated security=SSPI";
-        public static void insertTweet(Users user, string message, int tweetId)
+        static string ConnectionString = "data source=.; database=LinkedInApp; integrated security=SSPI";
+        public static void insertPost(Users user, string message, int tweetId)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(ConnectionString))
                 {
-                    string query = "insert into Tweets values(" + tweetId + ",\'" + user.FirstName + user.LastName + "\',\'" + message + "\',\'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\'," + user.UserId + ")";
+                    string query = "insert into Posts values(" + tweetId + ",\'" + user.FirstName + user.LastName + "\',\'" + message + "\',\'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\'," + user.UserId + ")";
                     SqlCommand cmd = new SqlCommand(query, connection);
                     connection.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();
-                    Console.WriteLine("Uploaded Tweets = " + rowsAffected);
+                    Console.WriteLine("Uploaded Posts = " + rowsAffected);
                 }
             }
             catch (Exception e)
@@ -254,17 +254,17 @@ namespace TweeterApp.DataAccessLayer
                 Console.WriteLine("OOPs, something went wrong.\n" + e);
             }
         }
-        public static void removeTweet(int tweetId)
+        public static void removePost(int tweetId)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(ConnectionString))
                 {
-                    string query = "Delete from Tweets where TweetId = "+tweetId;
+                    string query = "Delete from Posts where LinkedInId = "+tweetId;
                     SqlCommand cmd = new SqlCommand(query, connection);
                     connection.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();
-                    Console.WriteLine("Tweets Deleted= " + rowsAffected);
+                    Console.WriteLine("Posts Deleted= " + rowsAffected);
                 }
             }
             catch (Exception e)
@@ -273,12 +273,12 @@ namespace TweeterApp.DataAccessLayer
             }
         }
 
-        public static List<Tweets> getTweets(Users user)
+        public static List<Posts> getPosts(Users user)
         {
-            List<Tweets> tweets = new List<Tweets>();
+            List<Posts> tweets = new List<Posts>();
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                string query = "select * from Tweets where UserId=" + user.UserId;
+                string query = "select * from Posts where UserId=" + user.UserId;
                 SqlDataAdapter da = new SqlDataAdapter(query, connection);
 
                 //Using Data Table
@@ -286,9 +286,9 @@ namespace TweeterApp.DataAccessLayer
                 da.Fill(dt);
                 foreach (DataRow row in dt.Rows)
                 {
-                    Tweets t = new Tweets()
+                    Posts t = new Posts()
                     {
-                        TweetId = int.Parse(row["TweetId"].ToString()),
+                        LinkedInId = int.Parse(row["LinkedInId"].ToString()),
                         Message = row["Message"].ToString(),
                         UserName = row["UserName"].ToString()
                     };
@@ -308,11 +308,11 @@ namespace TweeterApp.DataAccessLayer
 //UserAuth.cs
 
 using System;
-using TweeterApp.DataAccessLayer;
-using TweeterApp.Entities;
+using LinkedInApp.DataAccessLayer;
+using LinkedInApp.Entities;
 using static System.Console;
 
-namespace TweeterApp.BusinessLogicLayer
+namespace LinkedInApp.BusinessLogicLayer
 {
     public class UserAuth
     {
@@ -409,58 +409,58 @@ namespace TweeterApp.BusinessLogicLayer
         }
 
 
-//TweetOperations.cs
+//LinkedInOperations.cs
 
 using System;
 using System.Collections.Generic;
-using TweeterApp.DataAccessLayer;
-using TweeterApp.Entities;
+using LinkedInApp.DataAccessLayer;
+using LinkedInApp.Entities;
 using static System.Console;
 
-namespace TweeterApp.BusinessLogicLayer
+namespace LinkedInApp.BusinessLogicLayer
 {
-    public class TweetOperations
+    public class LinkedInOperations
     {
-        public static void createTweet(Users user)
+        public static void createPost(Users user)
         {
-            WriteLine("Create Tweet");
+            WriteLine("Create Post");
             WriteLine("Enter Message:");
             string message = ReadLine();
-            WriteLine("Tweet Id:");
+            WriteLine("LinkedIn Id:");
             int tweetId = int.Parse(ReadLine());
             WriteLine("Press 1: Submit");
             WriteLine("Press 2: Cancel and Go Back");
             int ch = int.Parse(ReadLine());
             if (ch == 1)
             {
-                TweetData.insertTweet(user, message, tweetId);
+                LinkedInData.insertPost(user, message, tweetId);
             }
         }
-        public static void ViewTweets(Users user)
+        public static void ViewPosts(Users user)
         {
-            WriteLine("View Tweets");
-            List<Tweets> tweets=TweetData.getTweets(user);
+            WriteLine("View Posts");
+            List<Posts> tweets=LinkedInData.getPosts(user);
             if(tweets is null)
             {
-                WriteLine("No Tweets Found");
+                WriteLine("No Posts Found");
             }
             else
             {
                 foreach (var t in tweets)
                 {
-                    WriteLine("TweetID:{0} | Message:{1} | UserName:{2}", t.TweetId, t.Message, t.UserName);
+                    WriteLine("LinkedInId:{0} | Message:{1} | UserName:{2}", t.LinkedInId, t.Message, t.UserName);
                 }
             }
             
             WriteLine("Press 1: Go Back");
             ReadKey();
         }
-        public static void deleteTweet()
+        public static void deletePost()
         {
-            WriteLine("Delete Tweet");
-            WriteLine("Enter TweetId:");
+            WriteLine("Delete Post");
+            WriteLine("Enter LinkedInId:");
             int tweetId = int.Parse(ReadLine());
-            TweetData.removeTweet(tweetId);
+            LinkedInData.removePost(tweetId);
         }
         
     }
@@ -471,11 +471,11 @@ namespace TweeterApp.BusinessLogicLayer
 //Program.cs
 
 using System;
-using TweeterApp.BusinessLogicLayer;
-using TweeterApp.Entities;
+using LinkedInApp.BusinessLogicLayer;
+using LinkedInApp.Entities;
 using static System.Console;
 
-namespace TweeterApp.PresentationLayer
+namespace LinkedInApp.PresentationLayer
 {
     class Program
     {
@@ -485,7 +485,7 @@ namespace TweeterApp.PresentationLayer
         }
         public void MainPage()
         {
-            WriteLine("Welcome To Tweet App");
+            WriteLine("Welcome To Post App");
             WriteLine("Press 1: Register");
             WriteLine("Press 2: Login");
             int ch1 = int.Parse(ReadLine());
@@ -516,19 +516,19 @@ namespace TweeterApp.PresentationLayer
             {
                 while (true)
                 {
-                    WriteLine("Welcome to Tweet App");
-                    WriteLine("1. Create new Tweet");
-                    WriteLine("2. View All Tweet");
-                    WriteLine("3. Delete All Tweets");
+                    WriteLine("Welcome to LinkdeIn App");
+                    WriteLine("1. Create new Post");
+                    WriteLine("2. View All Posts");
+                    WriteLine("3. Delete All Posts");
                     WriteLine("4. Reset Password");
                     int ch = int.Parse(ReadLine());
                     switch (ch)
                     {
-                        case 1: TweetOperations.createTweet(user);
+                        case 1: PostOperations.createPost(user);
                             break;
-                        case 2: TweetOperations.ViewTweets(user);
+                        case 2: PostOperations.ViewPosts(user);
                             break;
-                        case 3: TweetOperations.deleteTweet();
+                        case 3: PostOperations.deletePost();
                             break;
                         case 4: UserAuth.resetPassword(user);
                             break;
