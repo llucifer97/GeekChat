@@ -27,12 +27,14 @@ bool isPalindrome(string s)
 
   void solve(int i , string s,vector<string> temp)
     {
-        if(i >= s.size()) {
+        if(i >= s.size()) 
+        {
            
-            int k = temp.size();
-            for(auto i : temp){
-                cout << i << " ";
-            }
+            // int k = temp.size();
+            // for(auto i : temp)
+            // {
+            //     cout << i << " ";
+            // }
 
 
             ans.push_back(temp);
@@ -57,14 +59,16 @@ bool isPalindrome(string s)
 
 
 
-int main() {
+int main() 
+{
+
 
 int t;
 cin >> t;
 while(t--)
 {
 
-dup = "";
+   dup = "";
   
    string s;
    cin >> s;
@@ -73,12 +77,41 @@ dup = "";
    {
       
        cout << dup << "\n";
+       
     
    }
    else
    {
        vector<string> temp;
         solve(0,s,temp);
+        cout << "[";
+
+        for(int i =0;i<ans.size();i++)
+        {
+            cout << "[";
+            for(int j = 0;j<ans[i].size();j++)
+            {
+                 if(j == ans[i].size() - 1)
+                 {
+                     cout << ans[i][j] ;
+                 }
+                 else
+                 {
+                     cout << ans[i][j] << ", " ;
+                 }
+
+
+            }
+           if(i ==ans.size() - 1)
+           {
+               cout << "]";
+           }
+           else
+           {
+                cout << "],";
+           }
+        }
+        cout << "]";
         
         cout << "\n";
 
